@@ -4,16 +4,26 @@
   become: true
   tasks:
 
-  - name: Update repository index
-    apt:
+  - name: Install apache server and php
+    package:
+      name: 
+      - "{{ apache_package }}"
+      - "{{ php_package }}"
+      state: latest
       update_cache: yes
 
-  - name: Install apache2 package
-    apt:
-      name: apache2
-      state: latest
+  - name: Copy default html files for site
+    tags: apache,httpd,apache2
+    copy:
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
 
-  - name: Install php support for apache
-    apt:
-      name: libapache2-mod-php
-      state: latest
+  - name: Start and enable httpd
+    service:
+      name: httpd
+      enabled: yes
+      state: started
+    when: ansible_distribution == "Amazon"
