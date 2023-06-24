@@ -1,32 +1,22 @@
 ---
 
-- hosts: webservers
+- hosts: all
   become: true
   tasks:
 
-  - name: Install apache server and php
-    package:
-      name: 
-      - "{{ apache_package }}"
-      - "{{ php_package }}"
-      state: latest
+  - name: Install updates (Amazon)
+    tags: always
+    yum:
+      update_only: yes
       update_cache: yes
-
-  - name: Copy default html files for site
-    tags: apache,httpd,apache2
-    copy:
-      src: default_site.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644
-
-  - name: Start and enable httpd
-    service:
-      name: httpd
-      enabled: yes
-      state: started
     when: ansible_distribution == "Amazon"
+
+  - name: Install updates (Ubuntu)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
 
 - hosts: all
   become: true
@@ -38,7 +28,7 @@
       name: simone
       groups: root
 
-  - name: Add SSH key for simone
+  - name: Add SSH key for Simone
     tags: always
     authorized_key:
       user: simone
@@ -51,5 +41,5 @@
       dest: /etc/sudoers.d/simone
       owner: root
       group: root
-      mode: 0400
+      mode: 0440
       
