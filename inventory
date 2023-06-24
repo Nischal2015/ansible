@@ -1,3 +1,8 @@
 target1 ansible_host=172.31.22.57 ansible_user=ubuntu apache_package=apache2 php_package=libapache2-mod-php
+
+[webservers]
 target2 ansible_host=172.31.24.87 ansible_user=ubuntu apache_package=apache2 php_package=libapache2-mod-php
 target3 ansible_host=172.31.16.130 ansible_user=ec2-user apache_package=httpd php_package=php
+
+[workstations]
+workstation ansible_host=172.31.12.209 ansible_user=ubuntu
