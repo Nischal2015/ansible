@@ -1,0 +1,33 @@
+- name: Install httpd package (Amazon)
+  tags: apache,amazon,httpd
+  yum:
+    name:
+    - httpd
+    - php
+    state: latest
+  when: ansible_distribution == "Amazon"
+
+- name: Start and enable httpd (Amazon)
+  tags: apache,amazon,httpd
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+  when: ansible_distribution == "Amazon"
+
+- name: Install apache2 package (Ubuntu)
+  tags: apache,apache2,ubuntu
+  apt:
+    name:
+    - apache2
+    - libapache2-mod-php
+  when: ansible_distribution == "Ubuntu"
+
+- name: Copy default html files for site
+  tags: apache,httpd,apache2
+  copy:
+    src: default_site.html
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: 0644
