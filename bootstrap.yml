@@ -1,0 +1,55 @@
+---
+
+- hosts: webservers
+  become: true
+  tasks:
+
+  - name: Install apache server and php
+    package:
+      name: 
+      - "{{ apache_package }}"
+      - "{{ php_package }}"
+      state: latest
+      update_cache: yes
+
+  - name: Copy default html files for site
+    tags: apache,httpd,apache2
+    copy:
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Start and enable httpd
+    service:
+      name: httpd
+      enabled: yes
+      state: started
+    when: ansible_distribution == "Amazon"
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: Create Simone user
+    tags: always
+    user:
+      name: simone
+      groups: root
+
+  - name: Add SSH key for simone
+    tags: always
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFnNzoBIw731PSF6qq2IKypR5mBPqicBVPR77xmMHqUs ubuntu@ansible-controller"
+
+  - name: Add sudoers file for simone
+    tags: always
+    copy:
+      src: sudoer_simone
+      dest: /etc/sudoers.d/simone
+      owner: root
+      group: root
+      mode: 0400
+      
