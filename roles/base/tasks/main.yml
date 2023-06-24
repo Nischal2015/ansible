@@ -1,0 +1,15 @@
+- name: Add SSH key for Simone
+  tags: always
+  authorized_key:
+    user: simone
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFnNzoBIw731PSF6qq2IKypR5mBPqicBVPR77xmMHqUs ubuntu@ansible-controller"
+
+- name: Generate sshd_config file from template
+  tags: ssh
+  template:
+    src: "{{ ssh_template_file }}"
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart_sshd
