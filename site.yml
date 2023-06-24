@@ -1,56 +1,36 @@
 ---
 
-- hosts: webservers
-  become: true
-  tasks:
-
-  - name: Install apache server and php
-    package:
-      name: 
-      - "{{ apache_package }}"
-      - "{{ php_package }}"
-      state: latest
-      update_cache: yes
-
-  - name: Copy default html files for site
-    tags: apache,httpd,apache2
-    copy:
-      src: default_site.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644
-
-  - name: Start and enable httpd
-    service:
-      name: httpd
-      enabled: yes
-      state: started
-    when: ansible_distribution == "Amazon"
-
 - hosts: all
   become: true
-  tasks:
+  pre_tasks:
 
-  - name: Add SSH key for simone
+  - name: Update repository index (Amazon)
     tags: always
-    authorized_key:
-      user: simone
-      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFnNzoBIw731PSF6qq2IKypR5mBPqicBVPR77xmMHqUs ubuntu@ansible-controller"
+    yum:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "Amazon"
+
+  - name: Update repository index (Ubuntu)
+    tags: always
+    apt:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
 
 - hosts: workstations
   become: true
-  tasks:
-    
-  - name: Install unzip
-    package:
-      name: unzip
+  roles:
+  - workstations
 
-  - name: Install terraform
-    unarchive:
-      src: https://releases.hashicorp.com/terraform/1.5.1/terraform_1.5.1_linux_amd64.zip
-      dest: /usr/local/bin
-      remote_src: yes
-      mode: 0755
-      owner: root
-      group: root
+- hosts: web_servers
+  become: true
+  roles:
+  - web_servers
+
+- hosts: db_servers
+  become: true
+  roles:
+  - db_servers
+    
+ 
